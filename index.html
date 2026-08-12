@@ -549,6 +549,13 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rose);outline-offse
   <p class="lead mt">A 900 square foot office-based surgery suite planned to the published iOR Partners specification: operating room, pre-op and PACU, sterile processing, sterile supply and soiled utility. Accredited by Quad A. It sits in the clinic layer, which means anyone can book it. Surgery is never a membership benefit.</p>
 
   <div class="card accent mt2">
+    <div class="eyebrow">What this suite collects</div>
+    <h3>Facility fee only. The surgeon bills their own professional fee.</h3>
+    <p class="muted mt">Every surgical figure in this brief is the <b class="rose">facility fee</b> &mdash; what L&amp;K collects for the room, clinical staff, supplies, sedation monitoring and recovery. The operating surgeon is a principal who bills the patient directly for their professional work, and that fee never appears on these books. The all-in price a patient pays is materially higher than the numbers shown here.</p>
+    <p class="muted mt">This is why the operating-room margins run higher than the treatment-room lines: with no surgeon's share to pay, facility cost of goods is disposables, implants, drugs and linens only. Clinical staff already sits in fixed overhead. Across <b data-lk="capacity.operatingRoom.demand|text"></b> operating-room hours a month, the schedule works out to roughly <b class="rose" id="orHourRate"></b> per operating-room hour.</p>
+  </div>
+
+  <div class="card accent mt2">
     <div class="eyebrow">The ceiling, stated up front</div>
     <h3>Moderate sedation. Under two hours of recovery. Nothing above that line.</h3>
     <p class="muted mt">Every procedure runs under IV moderate sedation administered by the operating physician with a monitoring RN. That ceiling is a design decision, not a limitation we backed into. It is why there is no anesthesiologist on payroll, no anesthesia machine in the budget, and only three PACU bays &mdash; and it removes the highest-acuity risk from the building entirely.</p>
@@ -800,7 +807,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rose);outline-offse
 
 <footer>
   <span>L&amp;K Wellness &middot; Playa Vista, CA &middot; Est. 2026</span>
-  <span>Confidential &middot; For qualified investors and lenders</span>
+  <span><a href="methodology.html" class="srclink">How these numbers were built</a> &middot; Confidential &middot; For qualified investors and lenders</span>
 </footer>
 <div class="disclaimer">
   Forward-looking figures in this document are projections based on the stated assumptions and are not guarantees of future performance. Actual results will differ. This document is not an offer to sell or a solicitation of an offer to buy any security. Final capital structure is subject to lender credit approval and counsel. Market and demographic figures carry their sources inline; figures we could not source were excluded rather than estimated.
@@ -929,6 +936,14 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rose);outline-offse
     clear(or); clear(tr);
     menu.or.forEach(function(t){ or.appendChild(el('li', null, t)); });
     menu.treatment.forEach(function(t){ tr.appendChild(el('li', null, t)); });
+
+    // Derived, not typed: the per-OR-hour rate is the sanity check a reviewer
+    // runs against a posted facility fee schedule.
+    var feeGross = s.lines.filter(function(l){ return l.facilityFee; })
+                          .reduce(function(a, l){ return a + l.gross; }, 0);
+    var hours = s.capacity.operatingRoom ? s.capacity.operatingRoom.demand : 0;
+    document.getElementById('orHourRate').textContent =
+      hours ? money(Math.round(feeGross / hours)) : '—';
   }
 
   function renderTiers(s){
@@ -1264,8 +1279,10 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rose);outline-offse
     ];
     if (s.stations && s.stations.or) {
       seats.splice(2, 0,
-        ['Surgeon (plastic or facial plastic, board certified)', 'Operative cases, patient selection, surgical QA'],
-        ['Surgical Technologist and Circulator', 'OR setup, sterile field, instrument processing']);
+        ['Surgeon (plastic or facial plastic, board certified) · Principal',
+         'Operative cases, patient selection, surgical QA. Bills professional fees directly; compensation sits below the operating line as an owner distribution, not facility payroll.'],
+        ['Surgical Technologist, Circulator and Monitoring RN',
+         'OR setup, sterile field, sedation monitoring, PACU recovery, instrument processing']);
     }
     seats.forEach(function(r){
       var tr = el('tr');
@@ -1299,8 +1316,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rose);outline-offse
       rows.splice(3, 0,
         ['An adverse surgical event, or a lapse in accreditation.',
          'The moderate-sedation ceiling and the two-hour recovery cap are the primary controls: they exclude every general-anesthesia procedure and the acuity that comes with them. Published patient-selection criteria, a written transfer agreement with a nearby acute-care facility, and a standing QA and performance-improvement program under the accrediting body sit behind that.'],
-        ['The surgeon leaves and operative volume stops.',
-         'Surgical revenue is roughly a third of the total; the wellness club and clinic carry fixed overhead independently. Coverage stays above the 1.25x convention on the wellness business alone, so a vacant OR delays growth rather than threatening debt service.']);
+        ['Operating room utilization comes in below plan.',
+         'The facility bills a fee for the room, not for a particular surgeon, so the suite is not one person’s key-person exposure — additional credentialed principals can be added without changing the model. Surgical facility fees are roughly a tenth of total revenue and the OR runs at 61% of practical capacity, so the wellness club and clinic carry fixed overhead independently and coverage holds above the 1.25x convention on that business alone.']);
     }
     g.appendChild(el('div','rh','Risk'));
     g.appendChild(el('div','rh','Mitigation'));
